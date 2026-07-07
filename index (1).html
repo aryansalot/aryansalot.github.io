@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salot Aryan — VAPT & SOC Security Researcher</title>
+<meta name="description" content="Portfolio of Salot Aryan, cybersecurity researcher specializing in Web Application Penetration Testing (VAPT) and SOC operations.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ DESIGN TOKENS ============ */
+  :root{
+    --bg-void:#0a0d13;
+    --bg-panel:#11151d;
+    --bg-panel-raised:#171d27;
+    --border:#232a37;
+    --border-soft:#1a2029;
+    --ink:#dde3ec;
+    --ink-dim:#8992a3;
+    --ink-faint:#5b6474;
+    --amber:#e8a33d;
+    --amber-dim:#8a6528;
+    --teal:#4fb7ad;
+    --red:#e0596b;
+    --red-dim:#4a2730;
+
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+
+  body{
+    background:var(--bg-void);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  /* subtle grid texture on the void background */
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--border-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  }
+
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--amber); color:#0a0d13;}
+
+  :focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px; position:relative; z-index:1;}
+  section{padding:96px 0;}
+  @media (max-width:720px){ section{padding:64px 0;} }
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--teal);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:16px; height:1px;
+    background:var(--teal);
+    display:inline-block;
+  }
+
+  h1,h2,h3{ font-family:var(--font-display); font-weight:600; letter-spacing:-0.01em; color:#fff; }
+
+  h2.section-title{
+    font-size:clamp(28px,4vw,40px);
+    margin-bottom:8px;
+  }
+  .section-sub{ color:var(--ink-dim); max-width:560px; margin-bottom:48px; font-size:15.5px;}
+
+  /* ============ NAV ============ */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(10,13,19,0.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  nav.wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:64px;
+  }
+  .logo{
+    font-family:var(--font-mono); font-weight:700; font-size:15px; color:#fff;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo .dot{width:8px; height:8px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px var(--amber);}
+  .nav-links{ display:flex; gap:32px; font-family:var(--font-mono); font-size:13px; color:var(--ink-dim);}
+  .nav-links a{ transition:color 0.2s; position:relative;}
+  .nav-links a:hover{ color:var(--ink);}
+  .nav-links a::before{ content:'./'; color:var(--ink-faint); }
+
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border); color:var(--ink); width:36px; height:36px; border-radius:6px; font-family:var(--font-mono); cursor:pointer;}
+
+  @media (max-width:720px){
+    .nav-links{
+      position:absolute; top:64px; left:0; right:0;
+      background:var(--bg-panel);
+      flex-direction:column; gap:0;
+      border-bottom:1px solid var(--border);
+      max-height:0; overflow:hidden; transition:max-height 0.25s ease;
+    }
+    .nav-links.open{ max-height:300px; }
+    .nav-links a{ padding:16px 24px; border-top:1px solid var(--border-soft); width:100%; }
+    .nav-toggle{ display:block; }
+  }
+
+  /* ============ HERO ============ */
+  .hero{
+    padding-top:160px;
+    padding-bottom:80px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:48px;
+  }
+  .hero-kicker{
+    font-family:var(--font-mono); font-size:13px; color:var(--ink-faint);
+    margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:clamp(34px,5.4vw,58px);
+    line-height:1.08;
+    margin-bottom:20px;
+  }
+  .hero h1 .hl{ color:var(--amber); }
+  .hero p.lede{
+    font-size:17px; color:var(--ink-dim); max-width:520px; margin-bottom:32px;
+  }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--font-mono); font-size:13.5px;
+    padding:12px 20px; border-radius:6px;
+    border:1px solid var(--border);
+    display:inline-flex; align-items:center; gap:8px;
+    transition:all 0.2s;
+  }
+  .btn-primary{ background:var(--amber); color:#171106; border-color:var(--amber); font-weight:700;}
+  .btn-primary:hover{ background:#f0b355; }
+  .btn-ghost:hover{ border-color:var(--ink-dim); background:var(--bg-panel); }
+
+  .hero-tags{ display:flex; gap:10px; flex-wrap:wrap; margin-top:28px; }
+  .tag{
+    font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim);
+    border:1px solid var(--border); padding:5px 10px; border-radius:20px;
+  }
+
+  /* ============ SIGNATURE: BURP-STYLE REPEATER PANEL ============ */
+  .repeater{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.6);
+  }
+  .repeater-titlebar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 16px;
+    background:var(--bg-panel-raised);
+    border-bottom:1px solid var(--border);
+    font-family:var(--font-mono); font-size:12px; color:var(--ink-faint);
+  }
+  .repeater-dots{ display:flex; gap:6px; }
+  .repeater-dots span{ width:9px; height:9px; border-radius:50%; background:#2b323f; }
+  .repeater-body{ display:grid; grid-template-columns:1fr 1fr; }
+  @media (max-width:820px){ .repeater-body{ grid-template-columns:1fr; } }
+
+  .rep-col{ padding:0; }
+  .rep-col + .rep-col{ border-left:1px solid var(--border); }
+  @media (max-width:820px){ .rep-col + .rep-col{ border-left:none; border-top:1px solid var(--border); } }
+
+  .rep-tab{
+    font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--ink-faint); padding:10px 16px; border-bottom:1px solid var(--border-soft);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .rep-tab .status{ font-weight:700; }
+  .rep-tab .status.ok{ color:var(--teal); }
+  .rep-tab .status.vuln{ color:var(--red); }
+
+  pre.rep-code{
+    font-family:var(--font-mono); font-size:12.5px; line-height:1.75;
+    padding:18px 16px; color:var(--ink-dim); overflow-x:auto; white-space:pre;
+  }
+  pre.rep-code .k{ color:#7dd3c8; }      /* keys/methods */
+  pre.rep-code .s{ color:#e8a33d; }      /* strings/values */
+  pre.rep-code .c{ color:var(--ink-faint); } /* comments/headers */
+  pre.rep-code .hex-orig{ color:var(--ink-dim); }
+  pre.rep-code .hex-new{
+    color:#0a0d13; background:var(--red); padding:1px 4px; border-radius:3px; font-weight:700;
+  }
+  pre.rep-code .victim{
+    color:#0a0d13; background:var(--amber); padding:1px 4px; border-radius:3px; font-weight:700;
+  }
+
+  .rep-footer{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px; border-top:1px solid var(--border);
+    background:var(--bg-panel-raised);
+  }
+  .severity-badge{
+    font-family:var(--font-mono); font-size:11px; font-weight:700; letter-spacing:0.06em;
+    background:var(--red-dim); color:var(--red); border:1px solid var(--red);
+    padding:5px 10px; border-radius:5px;
+  }
+  .send-btn{
+    font-family:var(--font-mono); font-size:12.5px; font-weight:700;
+    background:var(--teal); color:#06201d; border:none; padding:9px 18px; border-radius:6px;
+    cursor:pointer; transition:transform 0.15s ease;
+  }
+  .send-btn:hover{ transform:translateY(-1px); }
+  .send-btn:active{ transform:translateY(0); }
+
+  /* ============ ABOUT ============ */
+  .about-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:56px; align-items:start; }
+  @media (max-width:820px){ .about-grid{ grid-template-columns:1fr; gap:32px; } }
+  .about-text p{ color:var(--ink-dim); margin-bottom:16px; font-size:15.5px; }
+  .about-text strong{ color:var(--ink); font-weight:600; }
+
+  .stat-block{ border:1px solid var(--border); border-radius:10px; padding:24px; background:var(--bg-panel); }
+  .stat-row{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border-soft); font-family:var(--font-mono); font-size:13px;}
+  .stat-row:last-child{ border-bottom:none; }
+  .stat-row span:first-child{ color:var(--ink-faint); }
+  .stat-row span:last-child{ color:var(--ink); }
+
+  /* ============ RECON CHAIN ============ */
+  .chain{
+    display:flex; align-items:center; flex-wrap:wrap; gap:0;
+    font-family:var(--font-mono); font-size:13.5px;
+    border:1px solid var(--border); border-radius:10px; background:var(--bg-panel);
+    padding:28px 20px;
+  }
+  .chain-step{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    padding:10px 18px; min-width:110px;
+  }
+  .chain-step .name{ color:var(--ink); font-weight:700; }
+  .chain-step .role{ color:var(--ink-faint); font-size:11px; text-align:center; }
+  .chain-arrow{ color:var(--amber); font-size:16px; padding:0 4px; }
+  @media (max-width:720px){
+    .chain{ flex-direction:column; }
+    .chain-arrow{ transform:rotate(90deg); padding:6px 0; }
+  }
+
+  /* ============ SKILLS ============ */
+  .skills-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:820px){ .skills-grid{ grid-template-columns:1fr; } }
+  .skill-card{
+    border:1px solid var(--border); border-radius:10px; padding:22px; background:var(--bg-panel);
+  }
+  .skill-card h3{
+    font-size:15px; color:var(--ink); margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .skill-card h3::before{
+    content:''; width:6px; height:6px; background:var(--teal); border-radius:1px; display:inline-block;
+  }
+  .skill-list{ list-style:none; display:flex; flex-direction:column; gap:9px; }
+  .skill-list li{ font-size:13.5px; color:var(--ink-dim); display:flex; justify-content:space-between; gap:8px; }
+  .skill-list li span.lvl{ font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); white-space:nowrap; }
+
+  /* ============ PROJECTS ============ */
+  .project-list{ display:flex; flex-direction:column; gap:16px; }
+  .project{
+    border:1px solid var(--border); border-radius:10px; background:var(--bg-panel);
+    padding:26px; display:grid; grid-template-columns:auto 1fr; gap:22px;
+  }
+  @media (max-width:720px){ .project{ grid-template-columns:1fr; } }
+  .project-index{ font-family:var(--font-mono); color:var(--ink-faint); font-size:13px; padding-top:2px; }
+  .project h3{ font-size:18px; margin-bottom:8px; color:#fff; }
+  .project p{ color:var(--ink-dim); font-size:14.5px; margin-bottom:14px; }
+  .project-tags{ display:flex; gap:8px; flex-wrap:wrap; }
+  .project-tags span{
+    font-family:var(--font-mono); font-size:11px; color:var(--teal);
+    border:1px solid var(--border); padding:4px 9px; border-radius:5px;
+  }
+
+  /* ============ TRAINING/TIMELINE ============ */
+  .timeline{ border-left:1px solid var(--border); padding-left:28px; display:flex; flex-direction:column; gap:32px; }
+  .tl-item{ position:relative; }
+  .tl-item::before{
+    content:''; position:absolute; left:-33px; top:4px;
+    width:9px; height:9px; border-radius:50%; background:var(--bg-void); border:2px solid var(--amber);
+  }
+  .tl-item .tl-date{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint); margin-bottom:6px; }
+  .tl-item h3{ font-size:16px; margin-bottom:6px; }
+  .tl-item p{ color:var(--ink-dim); font-size:14px; }
+
+  /* ============ CONTACT ============ */
+  .contact-panel{
+    border:1px solid var(--border); border-radius:12px; background:var(--bg-panel);
+    padding:48px; text-align:center;
+  }
+  .contact-panel h2{ font-size:clamp(24px,4vw,34px); margin-bottom:14px; }
+  .contact-panel p{ color:var(--ink-dim); max-width:480px; margin:0 auto 28px; }
+  .contact-links{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+  footer{
+    border-top:1px solid var(--border-soft);
+    padding:32px 0; text-align:center;
+    font-family:var(--font-mono); font-size:12px; color:var(--ink-faint);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo"><span class="dot"></span>aryan.salot@security:~$</div>
+    <div class="nav-links" id="navLinks">
+      <a href="#about">about</a>
+      <a href="#finding">finding</a>
+      <a href="#skills">skills</a>
+      <a href="#projects">projects</a>
+      <a href="#training">training</a>
+      <a href="#contact">contact</a>
+      <a href="https://tryhackme.com/p/aryansalot32" target="_blank" rel="noopener">tryhackme</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div>
+      <div class="hero-kicker">// final-sem m.sc. (it) cybersecurity — jg university, ahmedabad</div>
+      <h1>Breaking web apps<br>so attackers <span class="hl">can't.</span></h1>
+      <p class="lede">
+        I'm Aryan — a web application penetration tester in training, hunting for IDORs,
+        injection flaws, and broken access control, with a parallel focus on SOC operations
+        and incident triage. Currently looking for a paid VAPT or SOC Analyst internship
+        that converts to full-time.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#finding">View my HIGH-sev finding →</a>
+        <a class="btn btn-ghost" href="Salot_Aryan_Resume.pdf" id="resumeLink" download>Download résumé</a>
+      </div>
+      <div class="hero-tags">
+        <span class="tag">SQLi (Union / Blind / Time-based)</span>
+        <span class="tag">XSS (Reflected / Stored / DOM)</span>
+        <span class="tag">IDOR &amp; Broken Access Control</span>
+        <span class="tag">SIEM &amp; Alert Triage</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNATURE FINDING -->
+  <section id="finding">
+    <div class="eyebrow">Featured Finding</div>
+    <h2 class="section-title">Hex-encoded IDOR — <code style="font-family:var(--font-mono); font-size:0.7em; color:var(--ink-faint);">/addeditaddress</code></h2>
+    <p class="section-sub">
+      Real request captured with Burp Suite Repeater. A hex-encoded address ID could be
+      incremented client-side to pull another user's saved address — with a reused,
+      predictable CSRF token compounding the issue.
+    </p>
+
+    <div class="repeater">
+      <div class="repeater-titlebar">
+        <span>Repeater — addeditaddress.request</span>
+        <div class="repeater-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="repeater-body">
+        <div class="rep-col">
+          <div class="rep-tab"><span>Request</span><span class="status">Burp Suite</span></div>
+<pre class="rep-code"><span class="k">POST</span> /addeditaddress <span class="c">HTTP/1.1</span>
+<span class="c">Host:</span> <span class="s">target-app.internal</span>
+<span class="c">Cookie:</span> <span class="s">session=8f2a...redacted</span>
+<span class="c">Content-Type:</span> <span class="s">application/x-www-form-urlencoded</span>
+
+id=<span class="hex-orig">6b8b456e</span><span class="hex-new" id="hexSwap">6b8b456e</span>&amp;
+csrf_token=a1c9f0e2b7d4...</pre>
+        </div>
+        <div class="rep-col">
+          <div class="rep-tab"><span>Response</span><span class="status vuln" id="respStatus">200 OK — awaiting send</span></div>
+<pre class="rep-code" id="respBody"><span class="c">// click "Send ▶" to replay with an incremented hex ID</span></pre>
+        </div>
+      </div>
+      <div class="rep-footer">
+        <span class="severity-badge">SEVERITY: HIGH</span>
+        <button class="send-btn" id="sendBtn">Send ▶</button>
+      </div>
+    </div>
+
+    <div class="about-text" style="margin-top:28px; max-width:720px;">
+      <p><strong>Situation:</strong> The address-management endpoint accepted a hex-encoded
+      record ID directly in the request body, with no server-side ownership check.</p>
+      <p><strong>Task:</strong> Confirm whether ID manipulation could expose another
+      user's saved address data.</p>
+      <p><strong>Action:</strong> Intercepted the request in Burp, decoded the hex ID,
+      incremented it by one, re-encoded it, and replayed the request through Repeater.
+      Also flagged that the accompanying CSRF token did not rotate per-session.</p>
+      <p><strong>Result:</strong> The response returned a different user's full saved
+      address — confirmed and documented as a <strong>High-severity IDOR</strong> with a
+      secondary CSRF weakness, written up with reproduction steps and remediation
+      guidance (server-side ownership checks + per-request CSRF tokens).</p>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="eyebrow">About</div>
+    <h2 class="section-title">Recon-first, evidence-driven.</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I got into security the way most people don't recommend: trying to do
+        everything at once — bug bounty, network pentesting, SOC, ethical hacking —
+        before realizing I needed <strong>one strong foundation</strong>. That foundation
+        is web application security.</p>
+        <p>My home lab runs <strong>Kali Linux</strong> with <strong>DVWA</strong> and
+        <strong>Metasploitable 2</strong> as targets, and <strong>Burp Suite + FoxyProxy</strong>
+        as my daily interception setup. On the blue-team side, I've worked with
+        <strong>Wazuh SIEM</strong>, and studied the <strong>NIST Incident Response</strong>
+        lifecycle and <strong>MITRE ATT&amp;CK</strong> for structured alert triage.</p>
+        <p>Right now I'm running a parallel-track job search: <strong>SOC Analyst as the
+        primary target</strong>, with <strong>WAPT as my differentiator</strong> in interviews.</p>
+      </div>
+      <div class="stat-block">
+        <div class="stat-row"><span>Education</span><span>M.Sc. (IT) Cybersecurity, 2025–27</span></div>
+        <div class="stat-row"><span>Institution</span><span>JG University, Ahmedabad</span></div>
+        <div class="stat-row"><span>Prior Degree</span><span>BCA — Adarsh BCA College, Botad</span></div>
+        <div class="stat-row"><span>Training</span><span>L1 SOC Analyst — IONX (Jan 2026)</span></div>
+        <div class="stat-row"><span>Internship</span><span>Sparks To Ideas, Ahmedabad</span></div>
+        <div class="stat-row"><span>Targeting</span><span>VAPT · SOC Analyst</span></div>
+        <div class="stat-row"><span>Location</span><span>Ahmedabad, India</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="eyebrow">Skills</div>
+    <h2 class="section-title">What I actually test with</h2>
+    <p class="section-sub">Recon methodology chain, followed by the core technique set behind it.</p>
+
+    <div class="chain" style="margin-bottom:40px;">
+      <div class="chain-step"><span class="name">subfinder</span><span class="role">subdomain enum</span></div>
+      <span class="chain-arrow">→</span>
+      <div class="chain-step"><span class="name">httpx</span><span class="role">probe live hosts</span></div>
+      <span class="chain-arrow">→</span>
+      <div class="chain-step"><span class="name">gau</span><span class="role">pull known URLs</span></div>
+      <span class="chain-arrow">→</span>
+      <div class="chain-step"><span class="name">ffuf</span><span class="role">fuzz endpoints</span></div>
+      <span class="chain-arrow">→</span>
+      <div class="chain-step"><span class="name">Burp</span><span class="role">manual exploitation</span></div>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill-card">
+        <h3>Injection &amp; Access Control</h3>
+        <ul class="skill-list">
+          <li>SQL Injection (Union / Boolean-Blind / Error / Time-based) <span class="lvl">PortSwigger · DVWA</span></li>
+          <li>IDOR &amp; Broken Access Control <span class="lvl">live finding</span></li>
+          <li>Hex/ID manipulation bypasses <span class="lvl">practical</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <h3>Client-Side / XSS</h3>
+        <ul class="skill-list">
+          <li>Reflected &amp; Stored XSS <span class="lvl">DVWA</span></li>
+          <li>DOM-based XSS (source → sink) <span class="lvl">custom PoC</span></li>
+          <li>WAF bypass (SVG markup, onresize) <span class="lvl">PortSwigger</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <h3>Blue Team / SOC</h3>
+        <ul class="skill-list">
+          <li>SIEM &amp; alert triage <span class="lvl">Wazuh · Splunk</span></li>
+          <li>NIST Incident Response lifecycle <span class="lvl">framework</span></li>
+          <li>MITRE ATT&amp;CK mapping <span class="lvl">framework</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <h3>Tools &amp; Platforms</h3>
+        <ul class="skill-list">
+          <li>Burp Suite, Wireshark, Nmap, Zenmap <span class="lvl">daily</span></li>
+          <li>Wazuh SIEM, Splunk <span class="lvl">SOC</span></li>
+          <li>VeraCrypt, Kali Linux <span class="lvl">lab</span></li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <h3>Networking &amp; Scripting</h3>
+        <ul class="skill-list">
+          <li>TCP/IP, DNS, HTTP/HTTPS, OSI Model <span class="lvl">core</span></li>
+          <li>Python, SQL, Shell Scripting <span class="lvl">scripting</span></li>
+          <li>Java, PHP <span class="lvl">basic</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="eyebrow">Projects</div>
+    <h2 class="section-title">Built, broken, documented</h2>
+
+    <div class="project-list">
+      <div class="project">
+        <div class="project-index">01</div>
+        <div>
+          <h3>DevSecOps Security Operations Platform</h3>
+          <p>Full-stack SOC-style platform built during my time at Infotact Solutions —
+          vulnerability management, incident tracking, and threat-intel views, with
+          compliance mapping against ISO 27001, NIST CSF, PCI DSS, GDPR, and SOC 2.
+          JWT-based authentication throughout.</p>
+          <div class="project-tags"><span>Flask</span><span>React</span><span>JWT Auth</span><span>Compliance Mapping</span></div>
+        </div>
+      </div>
+      <div class="project">
+        <div class="project-index">02</div>
+        <div>
+          <h3>Metasploitable 2 Exploitation Lab</h3>
+          <p>Structured exploitation session across 23 open ports on Metasploitable 2,
+          including vsftpd 2.3.4 backdoor, Samba (CVE-2007-2447), and UnrealIRCd —
+          documented with reproduction steps for each service.</p>
+          <div class="project-tags"><span>Metasploit</span><span>CVE-2007-2447</span><span>Service Enumeration</span></div>
+        </div>
+      </div>
+      <div class="project">
+        <div class="project-index">03</div>
+        <div>
+          <h3>OWASP Top 10 Demonstration App</h3>
+          <p>College mini-project: a multi-page PHP/MySQL application pairing each OWASP
+          Top 10 vulnerability with its fixed counterpart, built to explain root cause
+          and remediation side-by-side.</p>
+          <div class="project-tags"><span>PHP</span><span>MySQL</span><span>OWASP Top 10</span></div>
+        </div>
+      </div>
+      <div class="project">
+        <div class="project-index">04</div>
+        <div>
+          <h3>Temple Management System</h3>
+          <p>Full-stack Django web app for pooja &amp; darshan booking, festival info, and
+          an interactive holy-places map covering Badrinath, Jagannath Puri, Rameshwaram,
+          and Dwarka — with a SQL-backed e-commerce module for spiritual products.</p>
+          <div class="project-tags"><span>Python</span><span>Django</span><span>SQL</span><span>HTML/CSS/JS</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRAINING -->
+  <section id="training">
+    <div class="eyebrow">Training &amp; Experience</div>
+    <h2 class="section-title">Timeline</h2>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-date">Final Semester</div>
+        <h3>M.Sc. (IT) Cybersecurity — JG University, Ahmedabad</h3>
+        <p>Dissertation-stage focus on web application security and SOC operations.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Internship</div>
+        <h3>Infotact Solutions Pvt Ltd</h3>
+        <p>Project work on a DevSecOps Security Operations Platform — vulnerability
+        management, incident tracking, and compliance findings dashboards.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Internship</div>
+        <h3>Sparks to Ideas</h3>
+        <p>Applied security fundamentals in a live team environment.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Training</div>
+        <h3>L1 Cyber Security Analyst — IONX Institute</h3>
+        <p>Foundational SOC analyst training: alerting, triage, and incident handling basics.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Certification</div>
+        <h3>Ethical Hacking Course — TuteDude</h3>
+        <p>Ethical hacking fundamentals and offensive security awareness.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Ongoing</div>
+        <h3>TryHackMe — Hands-on Practice</h3>
+        <p>Active practice across network scanning, web exploitation, and Linux/Windows
+        security rooms. <a href="https://tryhackme.com/p/aryansalot32" target="_blank" rel="noopener" style="color:var(--teal); text-decoration:underline;">tryhackme.com/p/aryansalot32</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-panel">
+      <h2>Let's talk security.</h2>
+      <p>Open to paid VAPT and SOC Analyst internships (internship-to-full-time)
+      across MNCs and dedicated cybersecurity firms. Reach out — I reply fast.</p>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="mailto:aryansalot32@gmail.com">Email me</a>
+        <a class="btn btn-ghost" href="tel:+919313092003">+91 93130 92003</a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/salot-aryan" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn btn-ghost" href="https://github.com/aryansalot" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn-ghost" href="https://tryhackme.com/p/aryansalot32" target="_blank" rel="noopener">TryHackMe</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">designed &amp; built by Aryan · updated 2026</div>
+</footer>
+
+<script>
+  // Mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+
+  // Signature Repeater interaction: replay request with incremented hex ID
+  const sendBtn = document.getElementById('sendBtn');
+  const hexSwap = document.getElementById('hexSwap');
+  const respStatus = document.getElementById('respStatus');
+  const respBody = document.getElementById('respBody');
+  let sent = false;
+
+  sendBtn.addEventListener('click', () => {
+    if (sent) {
+      // reset
+      hexSwap.textContent = '';
+      respStatus.textContent = '200 OK — awaiting send';
+      respStatus.classList.remove('vuln');
+      respBody.innerHTML = '<span class="c">// click "Send ▶" to replay with an incremented hex ID</span>';
+      sendBtn.textContent = 'Send ▶';
+      sent = false;
+      return;
+    }
+    hexSwap.textContent = '6b8b456f';
+    hexSwap.classList.add('hex-new');
+    respStatus.textContent = '200 OK — IDOR confirmed';
+    respStatus.classList.add('vuln');
+    respBody.innerHTML =
+      '<span class="k">HTTP/1.1</span> <span class="s">200 OK</span>\n' +
+      '<span class="c">Content-Type:</span> application/json\n\n' +
+      '{\n' +
+      '  "status": "success",\n' +
+      '  "address_id": "6b8b456f",\n' +
+      '  "owner": <span class="victim">"a different user"</span>,\n' +
+      '  "line1": <span class="victim">"[victim\'s saved address]"</span>,\n' +
+      '  "phone": <span class="victim">"[victim\'s phone]"</span>\n' +
+      '}';
+    sendBtn.textContent = 'Reset ↺';
+    sent = true;
+  });
+
+</script>
+
+</body>
+</html>
